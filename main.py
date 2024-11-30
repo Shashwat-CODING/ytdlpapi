@@ -2,11 +2,15 @@ import os
 import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import yt_dlp
 import uvicorn
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
@@ -51,7 +55,10 @@ async def get_video_streams(video_id: str):
                 info_dict = ydl.extract_info(youtube_url, download=False)
             except Exception as extract_error:
                 logger.error(f"Error extracting video info: {extract_error}")
-                raise HTTPException(status_code=404, detail="Video not found or extraction failed")
+                return JSONResponse(
+                    status_code=404, 
+                    content={"detail": "Video not found or extraction failed"}
+                )
             
             # Prepare stream information
             streams = {
@@ -83,7 +90,10 @@ async def get_video_streams(video_id: str):
     except Exception as e:
         # Catch-all error handling
         logger.error(f"Unexpected error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        return JSONResponse(
+            status_code=500, 
+            content={"detail": "Internal server error"}
+        )
 
 @app.get("/")
 async def root():
