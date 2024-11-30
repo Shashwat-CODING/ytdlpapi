@@ -29,5 +29,5 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 8080
 
-# Use gunicorn as production ASGI server
+# Use gunicorn with uvicorn workers as the production server
 CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8080"]
